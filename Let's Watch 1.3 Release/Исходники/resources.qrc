@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/res">
+        <file>fullscreen.png</file>
+        <file>open.png</file>
+        <file>sound.png</file>
+        <file>soundoff.png</file>
+        <file>style.qss</file>
+        <file>main.png</file>
+    </qresource>
+</RCC>

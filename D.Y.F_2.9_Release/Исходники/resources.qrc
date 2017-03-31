@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/resources">
+        <file>palette.png</file>
+        <file>zalivka.png</file>
+        <file>rama.png</file>
+        <file>text.png</file>
+        <file>pen.png</file>
+        <file>pipetka.png</file>
+        <file>lastik.png</file>
+        <file>ellipse.png</file>
+        <file>five.png</file>
+        <file>lomanaya.png</file>
+        <file>polygon.png</file>
+        <file>rect.png</file>
+        <file>star.png</file>
+        <file>triangle.png</file>
+        <file>exit.png</file>
+        <file>open.png</file>
+        <file>save.png</file>
+        <file>saveas.png</file>
+        <file>-.png</file>
+        <file>+.png</file>
+        <file>no.png</file>
+        <file>yes.png</file>
+        <file>resize.png</file>
+        <file>cancel.png</file>
+        <file>front.png</file>
+        <file>back.png</file>
+        <file>settings.png</file>
+        <file>kursor.png</file>
+        <file>scale.png</file>
+        <file>main.png</file>
+    </qresource>
+</RCC>
