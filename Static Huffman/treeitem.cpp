@@ -7,13 +7,13 @@ TreeItem::TreeItem(char c, int w)
 }
 
 bool
-TreeItem::operator> (TreeItem ob)
+TreeItem::operator> (TreeItem& ob)
 {
     return this->weight>ob.weight;
 }
 
 bool
-TreeItem::operator< (TreeItem ob)
+TreeItem::operator< (TreeItem& ob)
 {
     return this->weight<ob.weight;
 }

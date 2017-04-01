@@ -13,8 +13,8 @@ public:
     std::shared_ptr<TreeItem> secondChild;
 
     TreeItem(char c, int w);
-    bool operator> (TreeItem ob);
-    bool operator< (TreeItem ob);
+    bool operator> (TreeItem& ob);
+    bool operator< (TreeItem& ob);
     int getWeight();
     char getSymbol();
 
