@@ -4,7 +4,9 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    hash.cpp
+    hash.cpp \
+    binarywriter.cpp
 
 HEADERS += \
-    hash.h
+    hash.h \
+    binarywriter.h

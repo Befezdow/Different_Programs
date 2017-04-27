@@ -1,18 +1,26 @@
 #include "hash.h"
+#include "binarywriter.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
 #include <strstream>
+#include <cmath>
+#include <iomanip>
 
 using namespace std;
 
 void compress(ifstream& in, ofstream& out, int sizeOfHash)
 {
-    Hash hashTable(sizeOfHash);
+    int size=pow(2,sizeOfHash);                                 //получаем размер хэш таблицы
+
+    Hash hashTable(size);
     hashTable.init();                                           //инициализировали хэш
 
+    out.write("LZW5",4);                                        //пишем заголовок
+    out.put(char(sizeOfHash));
+
     string tempStr;
-    int newCode=0;                                   //код новой строки
+    int newCode=0;                                              //код новой строки
 
     while (!in.eof())                                           //пока не конец in файла
     {
@@ -26,7 +34,7 @@ void compress(ifstream& in, ofstream& out, int sizeOfHash)
             unsigned short outCode=(unsigned short)hashTable.findCode(tempStr);
             out.write((char*)&outCode,2);                       //ДОБАВИТЬ ХОЛОДНЫЙ СТАРТ!!!
 
-            if (newCode<=sizeOfHash)
+            if (newCode<=size)
             {
                 hashTable.insert(tempStr+symbol,newCode);
                 newCode++;
@@ -51,7 +59,7 @@ int main(int argc, char *argv[])
     }
 
     strstream s;                                //получаем размер таблицы
-    s<<argv[2];
+    s<<argv[3];
     int size;
     s>>size;
 
@@ -71,7 +79,7 @@ int main(int argc, char *argv[])
     }
 
     ofstream out;                               //поток на выход
-    out.open(argv[3],ios::out | ios::binary);
+    out.open(argv[2],ios::out | ios::binary);
 
     if (!out.is_open())
     {
