@@ -12,6 +12,11 @@ Hash::Item::setNext(Item* n)
     next=n;
 }
 
+void Hash::Item::setCode(unsigned char c)
+{
+    code=c;
+}
+
 unsigned short Hash::Item::getCode() const
 {
     return code;
@@ -85,9 +90,14 @@ Hash::insert(std::string s,unsigned short c)
     {
         while (item->getNext())
         {
+            if (item->getStr()==s)
+            {
+                item->setCode(c);
+                return;
+            }
             item=item->getNext();
         }
-    item->setNext(newItem);
+        item->setNext(newItem);
     }
     else
         array[index]=newItem;

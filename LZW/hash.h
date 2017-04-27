@@ -15,6 +15,7 @@ class Hash                      //открытый хэш
         Item(std::string s="",unsigned short c=0);
 
         void setNext(Item* n);
+        void setCode(unsigned char c);
 
         unsigned short getCode() const;
         Item* getNext() const;
