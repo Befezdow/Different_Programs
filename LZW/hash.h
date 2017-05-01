@@ -24,6 +24,7 @@ class Hash                      //открытый хэш
 
     const int LENGTH;
     Item** array;
+    int currentSize;
 
     int hash(std::string s);
 
@@ -33,6 +34,7 @@ public:
     int findCode(std::string s);                        //поиск по строке
     void insert(std::string s, unsigned short c);       //добавление строки с её кодом
     void init();                                        //инициализация хэша алфавитом
+    int size() const;
 };
 
 #endif // HASH_H

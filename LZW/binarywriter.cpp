@@ -1,4 +1,6 @@
 #include "binarywriter.h"
+#include <cstring>
+#include <iostream>
 
 BinaryWriter::BinaryWriter()
 {
@@ -39,14 +41,14 @@ BinaryWriter::getStream()
 std::string
 BinaryWriter::toString(unsigned short code, int countOfBits)
 {
-    char byte1=((char*)&code)[0];                       //получаем первый байт
-    char byte2=((char*)&code)[1];                       //получаем второй байт
+    unsigned char bytes[2];
+    memcpy(bytes,&code,2);
 
     std::string str;                                    //возвращаемая строка
 
     for (int i=0;i<8;++i)
     {
-        if ((0b00000001<<i) & byte1)
+        if ((0b00000001<<i) & bytes[0])
             str+="1";
         else
             str+="0";
@@ -56,7 +58,7 @@ BinaryWriter::toString(unsigned short code, int countOfBits)
 
     for (int i=0;i<countOfBits;++i)
     {
-        if ((0b00000001<<i) & byte2)
+        if ((0b00000001<<i) & bytes[1])
             str+="1";
         else
             str+="0";
@@ -87,6 +89,7 @@ BinaryWriter::write(unsigned short code, int countOfBits)
     std::string str=toString(code,countOfBits);
     for (unsigned int i=0;i<str.size();++i)
         this->writeNextBit(str[i]=='1');
+    std::cerr<<"Writer: "<<str<<std::endl;
 }
 
 void

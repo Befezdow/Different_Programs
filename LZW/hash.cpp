@@ -1,4 +1,5 @@
 #include "hash.h"
+#include <iostream>
 
 Hash::Item::Item(std::string s, unsigned short c):
     code(c),
@@ -35,7 +36,8 @@ Hash::Item::getStr() const
 }
 
 Hash::Hash(int len):
-    LENGTH(len)
+    LENGTH(len),
+    currentSize(0)
 {
     array=new Item* [LENGTH];
     for (int i=0;i<LENGTH;++i)
@@ -84,6 +86,7 @@ void
 Hash::insert(std::string s,unsigned short c)
 {
     int index=hash(s);
+//    std::cerr<<index<<std::endl;
     Item* item=array[index];
     Item* newItem=new Item(s,c);
     if (item)
@@ -101,20 +104,35 @@ Hash::insert(std::string s,unsigned short c)
     }
     else
         array[index]=newItem;
+    currentSize++;
 }
 
 int
 Hash::hash(std::string s)
 {
-    //преобразовать строку в максимально уникальное число % LENGTH
-    return 1;
+    unsigned int result=13562473;
+    int size=s.size();
+    for (int i=0;i<size;++i)
+    {
+        result=(result*37+s[i]*size)%LENGTH;
+    }
+    return result%LENGTH;
 }
 
 void
 Hash::init()
 {
+//    std::cerr<<"Инициализация хэша:"<<std::endl;
     for (unsigned int i=0;i<256;++i)
     {
-        this->insert(""+char(i),i);
+        std::string s;
+        s=s+char(i);
+//        std::cerr<<i<<": "<<s<<std::endl;
+        this->insert(s,i);
     }
+}
+
+int Hash::size() const
+{
+    return currentSize;
 }

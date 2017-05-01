@@ -5,8 +5,10 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     hash.cpp \
-    binarywriter.cpp
+    binarywriter.cpp \
+    binaryreader.cpp
 
 HEADERS += \
     hash.h \
-    binarywriter.h
+    binarywriter.h \
+    binaryreader.h

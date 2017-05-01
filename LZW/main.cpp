@@ -1,11 +1,13 @@
 #include "hash.h"
 #include "binarywriter.h"
+#include "binaryreader.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
 #include <strstream>
 #include <cmath>
 #include <iomanip>
+#include <cstring>
 
 using namespace std;
 
@@ -20,34 +22,110 @@ void compress(ifstream& in, ofstream& out, int sizeOfHash)
     out.put(char(sizeOfHash));
 
     string tempStr;
-    int newCode=0;                                              //код новой строки
+    int newCode=256;                                              //код новой строки
+
+    BinaryWriter writer;
+    writer.attach(&out);
 
     while (!in.eof())                                           //пока не конец in файла
     {
         int c=in.get();                                         //читаем символ
-        char symbol=(char)c;
+        char symbol=char(c);
 
         int code=hashTable.findCode(tempStr+symbol);            //пытаемся получить код новой строки из таблицы
 
         if (code==-1)                                           //если символа там нет
         {
             unsigned short outCode=(unsigned short)hashTable.findCode(tempStr);
-            out.write((char*)&outCode,2);                       //ДОБАВИТЬ ХОЛОДНЫЙ СТАРТ!!!
+            cerr<<"Записано: "<<outCode<<" Строка: "<<tempStr<<" Кол-во байт: "<<7 + ceil(double(hashTable.size())/256)<<endl;
+            writer.write(outCode,7 + ceil(double(hashTable.size())/256));
 
-            if (newCode<=size)
+            if (newCode<size)
             {
                 hashTable.insert(tempStr+symbol,newCode);
                 newCode++;
             }
-            tempStr=""+symbol;                                  //обновляем временную строку
+            tempStr.clear();                                    //обновляем временную строку
+            tempStr=tempStr+symbol;
         }
         else                                                    //если символ там есть
         {
-            tempStr+=symbol;                                    //добавляем его к временной строке
+            tempStr=tempStr+symbol;                             //добавляем его к временной строке
         }
     }
     unsigned short outCode=(unsigned short)hashTable.findCode(tempStr);
-    out.write((char*)&outCode,2);                               //ДОБАВИТЬ ХОЛОДНЫЙ СТАРТ!!!
+    cerr<<"Записано: "<<outCode<<" Строка: "<<tempStr<<" Кол-во байт: "<<7 + ceil(double(hashTable.size())/256)<<endl;
+    writer.write(outCode,7 + ceil(double(hashTable.size())/256));
+    writer.flush();
+}
+
+void uncompress(ifstream& in, ofstream& out)
+{
+    char header[4];
+    in.read(header,4);
+    if (header[0]!='L' || header[1]!='Z' || header[2]!='W' || header[3]!='5')
+    {
+        throw "Unknown format of file";
+    }
+
+    int tableSize=in.get();
+    tableSize=pow(2,tableSize);
+    vector<string> table;
+
+//    cerr<<"Инициализация вектора:"<<endl;
+    for (int i=0;i<256;++i)
+    {
+        string s;
+        s=s+char(i);
+//        cerr<<i<<": "<<s<<endl;
+        table.push_back(s);
+    }
+
+    for (int i=256;i<tableSize;++i)
+    {
+        table.push_back("");
+    }
+
+    int length=256;
+    BinaryReader reader;
+    reader.attach(&in);
+
+    unsigned short code=reader.read(7 + ceil(double(length)/256));
+    out.write(table.at(code).c_str(),table.at(code).size());
+    cerr<<"Прочтено: "<<code<<" Пишем: "<<table.at(code)<<" Кол-во байт: "<<7 + ceil(double(length)/256)<<endl;
+    length++;               //////////////////////////НУЖНО ЛИ ЭТО???
+    //беда в разности кол-ва бит чтения и записи
+    //8 бит пишется 1 раз а читается 2
+    unsigned short old;
+    while (!in.eof())
+    {
+        old=code;
+        code=reader.read(7 + ceil(double(length)/256));
+        if (table[code]!="")
+        {
+            out.write(table.at(code).c_str(),table.at(code).size());
+            cerr<<"Прочтено: "<<code<<" Пишем: "<<table.at(code)<<" Кол-во байт: "<<7 + ceil(double(length)/256)<<endl;
+            if (length-1<tableSize)
+            {
+                table[length-1]=table.at(old)+table.at(code)[0];
+//                cerr<<"Добавляем в таблицу "<<table[length]<<endl;
+                length++;
+            }
+        }
+        else
+        {
+            string tempStr=table.at(old)+table.at(old)[0];
+            out.write(tempStr.c_str(),tempStr.size());
+            cerr<<"Прочтено: "<<code<<" Пишем: "<<table.at(code)<<" Кол-во байт: "<<7 + ceil(double(length)/256)<<endl;
+            if (length-1<tableSize)
+            {
+                table[length-1]=tempStr;
+//                cerr<<"Добавляем в таблицу "<<table[length]<<endl;
+                length++;
+            }
+        }
+
+    }
 }
 
 int main(int argc, char *argv[])
@@ -91,5 +169,24 @@ int main(int argc, char *argv[])
 
     in.close();
     out.close();
+
+    ifstream in2;
+    in2.open(argv[2],ios::in | ios::binary);
+    if (!in2.is_open())
+    {
+        cerr<<"Out2 file not open"<<endl;
+        return 1;
+    }
+
+    ofstream out2;
+    out2.open("result.txt",ios::out | ios::binary);
+    if (!out2.is_open())
+    {
+        cerr<<"Result file not open"<<endl;
+        return 1;
+    }
+    uncompress(in2,out2);
+    in2.close();
+    out2.close();
     return 0;
 }
