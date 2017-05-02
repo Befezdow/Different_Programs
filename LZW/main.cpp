@@ -68,8 +68,8 @@ void uncompress(ifstream& in, ofstream& out)
         throw "Unknown format of file";
     }
 
-    int tableSize=in.get();
-    tableSize=pow(2,tableSize);
+    int size=in.get();
+    int tableSize=pow(2,size);
     vector<string> table;
 
 //    cerr<<"Инициализация вектора:"<<endl;
@@ -90,24 +90,32 @@ void uncompress(ifstream& in, ofstream& out)
     BinaryReader reader;
     reader.attach(&in);
 
-    unsigned short code=reader.read(7 + ceil(double(length)/256));
+    int readedBits=8;
+
+    unsigned short code=reader.read(readedBits);
+    if (readedBits<size)
+        readedBits++;
     out.write(table.at(code).c_str(),table.at(code).size());
     cerr<<"Прочтено: "<<code<<" Пишем: "<<table.at(code)<<" Кол-во байт: "<<7 + ceil(double(length)/256)<<endl;
-    length++;               //////////////////////////НУЖНО ЛИ ЭТО???
+//    if (length<tableSize)
+//    {
+//        length++;               //////////////////////////НУЖНО ЛИ ЭТО???
+//    }
     //беда в разности кол-ва бит чтения и записи
     //8 бит пишется 1 раз а читается 2
+    //НЕ РОБИТ ДЛЯ 8
     unsigned short old;
     while (!in.eof())
     {
         old=code;
-        code=reader.read(7 + ceil(double(length)/256));
+        code=reader.read(readedBits);
         if (table[code]!="")
         {
             out.write(table.at(code).c_str(),table.at(code).size());
             cerr<<"Прочтено: "<<code<<" Пишем: "<<table.at(code)<<" Кол-во байт: "<<7 + ceil(double(length)/256)<<endl;
-            if (length-1<tableSize)
+            if (length<tableSize)
             {
-                table[length-1]=table.at(old)+table.at(code)[0];
+                table[length]=table.at(old)+table.at(code)[0];
 //                cerr<<"Добавляем в таблицу "<<table[length]<<endl;
                 length++;
             }
@@ -117,12 +125,16 @@ void uncompress(ifstream& in, ofstream& out)
             string tempStr=table.at(old)+table.at(old)[0];
             out.write(tempStr.c_str(),tempStr.size());
             cerr<<"Прочтено: "<<code<<" Пишем: "<<table.at(code)<<" Кол-во байт: "<<7 + ceil(double(length)/256)<<endl;
-            if (length-1<tableSize)
+            if (length<tableSize)
             {
-                table[length-1]=tempStr;
+                table[length]=tempStr;
 //                cerr<<"Добавляем в таблицу "<<table[length]<<endl;
                 length++;
             }
+        }
+        if (length%256==0 && readedBits<size)
+        {
+            readedBits++;
         }
 
     }
