@@ -75,3 +75,20 @@
 -- select distinct exchange_machine.id, exchange_machine.specification from exchange_machine inner join bank on exchange_machine.address = bank.address;
 -- select distinct bank.name from exchange inner join bank on exchange.bank_addressee = bank.id group by bank.name having SUM(exchange.value) > 5000;
 -- select distinct currency_type.name from exchange inner join currency_type on exchange.currency = currency_type.id group by currency_type.name where value > 2000;
+
+--8
+-- update exchange as e set value = cast(e.value + (e.value * (select exchange_machine.insurance_fee from exchange inner join exchange_machine on exchange.machine = exchange_machine.id where e.registration_number = exchange.registration_number) / 100) + (e.value * (select bank.commission from exchange inner join bank on exchange.bank_addressee = bank.id where e.registration_number = exchange.registration_number) / 100) as integer);
+
+--9
+-- alter table exchange add bank_commission integer not null default 0;
+-- update exchange as e set bank_commission = (select bank.commission from exchange inner join bank on exchange.bank_addressee = bank.id where e.registration_number = exchange.registration_number); 
+
+--10
+-- select distinct bank.name from (exchange inner join bank on exchange.bank_addressee = bank.id inner join exchange_machine on exchange.machine = exchange_machine.id) where bank.address not in (exchange_machine.address) and exchange.day in ('Monday','Tuesday','Wednesday') and exchange_machine.insurance_fee in (select insurance_fee from exchange_machine where insurance_fee < 3);
+-- select bank.name from bank where bank.id in (select exchange.bank_addressee from exchange group by bank_addressee having sum(value) > 5000);
+
+-- select * from exchange_machine where id not in (select id from exchange_machine where specification like '%UF%'); 
+
+-- select name from bank where address not in ('Kanavinskiy');
+
+--11
